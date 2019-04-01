@@ -1,0 +1,32 @@
+#version 330 core
+
+out vec4 FragColor;
+
+in float Height;
+in vec3 Normal;
+
+uniform vec3 Light;
+uniform vec3 LightPos;
+
+void main()
+{	
+	float Intensity = (1.3f - Height) / 1.3f;
+
+	vec3 Norm = normalize(Normal); 
+	vec3 LightDir = normalize(LightPos);
+	float GlowIntens = max(dot(Norm, LightDir), 0.0f);
+	GlowIntens = pow(GlowIntens, 4);
+	
+	vec3 LightIntens = Light * Intensity;
+	
+	float Coef = 0.4;
+	if(LightPos.y < -50)
+	{
+		Coef = (100 + LightPos.y) / 125;
+		if(Coef < 0) Coef = 0;
+	}
+	vec3 Glow = ( vec3(0.6f, 0.6f, 0.6f) + sqrt(Light) ) * GlowIntens * Coef; 
+	vec3 Dark = 0.1 * vec3(0.8f, 0.8f, 0.8f);
+
+	FragColor = vec4((Dark + LightIntens + Glow), 1.0f) * vec4(0.6, 0.7, 1.0, 1.0);	
+}

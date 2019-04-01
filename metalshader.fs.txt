@@ -1,0 +1,37 @@
+#version 330 core
+
+out vec4 FragColor;
+
+in vec2 TexCoords;
+in vec3 Normal;
+in vec3 FragPos;
+
+uniform vec3 Light;
+uniform vec3 LightPos;
+uniform vec3 ViewPos;
+
+uniform sampler2D Texture;
+
+void main()
+{
+	vec3 Norm = normalize(Normal);
+	vec3 LightDir = normalize(LightPos);
+	float Intensity = max(dot(Norm, LightDir), 0.0f);
+
+
+	vec3 Dark = 0.4f * vec3(1.0f, 1.0f, 1.0f);
+
+	float Coef;
+	if(LightPos.y > 800) Coef = (LightPos.y - 800) / 4000;
+
+	vec3 Ambient = (0.5 + Coef) * Light;
+	vec3 Diffuse = (0.8 - Coef) * Intensity * Light; 
+
+
+	vec3 ViewDir = normalize(ViewPos - FragPos);
+	vec3 ReflectDir = reflect(-LightDir, Norm);
+	float Spec = pow(max(dot(ViewDir, ReflectDir), 0.0f),4);
+	vec3 Specular = Light * Spec * 2.0f;
+	
+	FragColor = vec4((Dark + Diffuse + Ambient + Specular) * texture(Texture, TexCoords), 1.0);
+}
